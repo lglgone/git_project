@@ -11,6 +11,7 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/laravel', function () {return view('welcome');});
+// Route::get('/', function () {return view('index');});
+Route::get('/app', function () {return view('layouts.app');});
+Route::get('/', 'PagesController@root')->name('root');
