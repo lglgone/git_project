@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use \Illuminate\Http\Request;
+use Illuminate\Auth\Events\Registered;
 
 class RegisterController extends Controller
 {
@@ -39,7 +41,21 @@ class RegisterController extends Controller
     {
         $this->middleware('guest');
     }
+    public function register(Request $request)
+    {
+        // 检验用户提交的数据是否有误
+        $this->validator($request->all())->validate();
 
+        // 创建用户同时触发用户注册成功的事件，并将用户传参
+        event(new Registered($user = $this->create($request->all())));
+
+        // 登录用户
+        $this->guard()->login($user);
+
+        // 调用钩子方法 `registered()` 
+        return $this->registered($request, $user)
+                        ?: redirect($this->redirectPath());
+    }
     /**
      * Get a validator for an incoming registration request.
      *
